@@ -6,3 +6,18 @@ body {
 a {
   color: #00B7FF;
 }
+
+path {
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+}
+ 
+line {
+    stroke: black;
+}
+ 
+text {
+    font-family: Arial;
+    font-size: 9pt;
+}
