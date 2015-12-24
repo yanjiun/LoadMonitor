@@ -1,0 +1,34 @@
+extends layout
+
+block content
+
+    h1=title
+
+    // Wrapper
+    #wrapper
+
+        //LOAD INFO
+        #candidateInfo
+        h2 Data for <span id='hostname'></span>
+            p
+            strong System Uptime: 
+            | <span id='uptime'></span>
+            br
+            p 
+            strong Load Average (past 1 minute): 
+            | <span id="loadAvg"></span>
+            br 
+
+        h2 Real time data
+            p
+            strong Current Load Average <span id="currentLoadAvg"></span>
+   
+        h3 Alerts
+            p 
+            strong <span id="warning"></span>
+        
+        #chart       
+  
+        // /LOAD INFO
+    
+    // /WRAPPER
