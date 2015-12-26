@@ -1,14 +1,4 @@
 // put here utility functions for screen display?
-//var w=960, h=500,
-//svg=d3.select('#chart')
-//.append("svg")
-//.attr("width", w)
-//.attr("height", h);
-
-//var text=svg
-//.append("text")
-//.text("hello world")
-//.attr("y", 50);
 
 // don't use a global in the long run 
 var candidateListData = [];
@@ -70,14 +60,21 @@ socket.on("warning", function(data){
     $('#warning').prepend($('<p>').text(data.warning));
 });
 
-// D3??
+socket.on("recovered", function(data){
+    console.log("recovered", data);
+    $('#warning').prepend($('<p>').text(data.msg));
+});
 
-var data = [3, 6, 2, 7, 5, 2, 1, 3, 8, 9, 2, 5, 7],
+//var data = [3, 6, 2, 7, 5, 2, 1, 3, 8, 9, 2, 5, 7],
+
+socket.on("loadHistory", function(data){
+
+// D3 region. Make this dynamic
 w = 400,
 h = 200,
 margin = 20,
-y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
-x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin]);
+y = d3.scale.linear().domain([0, d3.max(data.series)]).range([0 + margin, h - margin]),
+x = d3.scale.linear().domain([0, data.series.length]).range([0 + margin, w - margin]);
 
 var vis = d3.select("#chart")
     .append("svg:svg")
@@ -91,7 +88,7 @@ var line = d3.svg.line()
     .x(function(d,i) { return x(i); })
     .y(function(d) { return -1 * y(d); });
 
-g.append("svg:path").attr("d", line(data));
+g.append("svg:path").attr("d", line(data.series));
 
 g.append("svg:line")
     .attr("x1", x(0))
@@ -103,7 +100,7 @@ g.append("svg:line")
     .attr("x1", x(0))
     .attr("y1", -1 * y(0))
     .attr("x2", x(0))
-    .attr("y2", -1 * y(d3.max(data)));
+    .attr("y2", -1 * y(d3.max(data.series)));
 
 g.selectAll(".xLabel")
     .data(x.ticks(5))
@@ -141,3 +138,5 @@ g.selectAll(".yTicks")
     .attr("x1", x(-0.3))
     .attr("y2", function(d) { return -1 * y(d); })
     .attr("x2", x(0));
+
+});

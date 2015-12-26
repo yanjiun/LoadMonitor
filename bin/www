@@ -117,18 +117,52 @@ function handleClient(socket){
     
     },10000); 
 
+    var seriesData = [];
+    //var seriesData = Array.apply(null, 
+    //        new Array(600)).map(Number.prototype.valueOf, 0);
+    setInterval(function(){
+       
+        console.log("seriesData is now" + seriesData); 
+        var loadAvg = os.loadavg()[0];
+        if (seriesData.length >= 600){
+            seriesData.pop();
+        }
+        seriesData.unshift(loadAvg); 
+        var data = {
+            "series": seriesData,
+        };
+        
+        socket.emit('loadHistory', data);
+    
+    }, 10000);
+
+    var alertOn = false;
     
     //when load exceeds a certain 
     setInterval(function(){
-        var threshold = 3;
+        var threshold = 1;
         var loadAvg = os.loadavg()[0]; //the 1 min load avg        
+        var today = new Date();
+        var nowtimeString = today.toLocaleTimeString();         
         var data = {
-            "warning": "ALERT! Machine load excceeded threshold. It is now"
-                        + loadAvg,
+            "warning": "High load generated an alert - load = "
+                        + loadAvg + ", triggered at " + nowtimeString,
+            
         };
-        if (loadAvg > threshold){
+        if (loadAvg > threshold && !alertOn){
             socket.emit('warning', data);
+            alertOn = true;
         }
+        var recoverData = {
+            "msg": "System recovered - load = " + loadAvg +
+                    " at " + nowtimeString,
+        };
+        if (alertOn & loadAvg < threshold){
+            console.log("recover alert sent", recoverData); 
+            socket.emit('recovered', recoverData);
+            alertOn = false;
+        } 
+
 
     }, 100);    
 
