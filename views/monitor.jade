@@ -10,22 +10,19 @@ block content
         //CHART
         #chart
         //LOAD INFO
-        #candidateInfo
         h2 Data for <span id='hostname'></span>
             p
             strong System Uptime: 
-            | <span id='uptime'></span>
+            | <span id='uptime'></span> (s)
             br
-            p 
-            strong Load Average (past 1 minute): 
-            | <span id="loadAvg"></span>
-            br 
-
-        h2 Real time data
             p
-            strong Current Load Average <span id="currentLoadAvg"></span>
-   
-        h3 Alerts
+            strong Current Load Average (over past 1 minute):
+            | <span id="currentLoadAvg"></span>
+            br
+            br
+
+     h1 Alerts
+        h2 
             p 
             strong <span id="warning"></span>
         

@@ -98,30 +98,25 @@ var os      = require('os');
 
 io.on("connection", handleClient);
 function handleClient(socket){
-    socket.emit("test", {data: "blah"});
-   
+    
     //on an interval send the contents of 
     //uptime 
-
     setInterval(function(){
         
         var upseconds = os.uptime();
         var loadAvg = os.loadavg()[0]; //the 1 min load avg
-        var hostname = os.hostname();
         var data = {
-            "hostname": hostname,
             "uptime": upseconds,
             "loadAvg": loadAvg
         };
         socket.emit('load', data);
     
-    },10000); 
+    },1000); 
 
     var seriesData = [];
     //var seriesData = Array.apply(null, 
     //        new Array(600)).map(Number.prototype.valueOf, 0);
-    setInterval(function(){
-       
+    setInterval(function(){ 
         console.log("seriesData is now" + seriesData); 
         var loadAvg = os.loadavg()[0];
         if (seriesData.length >= 600){
@@ -130,6 +125,7 @@ function handleClient(socket){
         seriesData.unshift(loadAvg); 
         var data = {
             "series": seriesData,
+            "newPt": loadAvg
         };
         
         socket.emit('loadHistory', data);
@@ -162,8 +158,6 @@ function handleClient(socket){
             socket.emit('recovered', recoverData);
             alertOn = false;
         } 
-
-
     }, 100);    
 
     socket.on('disconnect', function(){

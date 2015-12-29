@@ -5,10 +5,6 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-//Database
-//var mongo = require('mongoskin');
-//var db = mongo.db('mongodb://localhost:27017/local', {native_parser:true});
-
 var routes = require('./routes/index');
 var monitor = require('./routes/monitor');
 
@@ -25,13 +21,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Make our db accessible to our router
-// uncomment this line?
-//app.use(function(req, res, next){
-//    req.db = db;
-//    next();
-//});
 
 app.use('/', routes);
 app.use('/monitor', monitor);
