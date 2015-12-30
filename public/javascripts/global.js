@@ -1,7 +1,3 @@
-// put here utility functions for screen display?
-
-// don't use a global in the long run 
-var candidateListData = [];
 
 // DOM Ready =================================
 $(document).ready(function(){
@@ -15,7 +11,6 @@ $(document).ready(function(){
 
 // Fill screen with data
 function populateData(){
-    //TODO: fill in logic for what displays where
     
     $.getJSON('/monitor/monitor', function(data){
         $.each(data, function(){
@@ -39,13 +34,13 @@ function showLoadInfo(data){
 // Functions related to socket.io 
 
 var socket = io.connect('http://localhost:3000');
-var vis, g;
+var vis, g, w, h, margin;
 socket.on("connect", function(){
     console.log("Connected!");
 
     w = 800,
     h = 200,
-    margin = 20;
+    margin = 40;
     
     vis = d3.select("#chart")
         .append("svg:svg")
@@ -56,6 +51,29 @@ socket.on("connect", function(){
         .attr("transform", "translate(0, 200)");
 
     g.append("svg:path");
+
+    var now = new Date();
+    x = d3.time.scale()
+        .range([0 + margin, w - margin])
+        .domain([now - 10*1000, now]),
+    xAxis = d3.svg.axis().scale(x).orient("bottom"),
+    
+    y = d3.scale.linear()
+        .domain([0, 1.5])
+        .range([h- margin, 0+ margin]),
+    yAxis = d3.svg.axis().scale(y).orient("left");
+
+    vis.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0, " + (h - margin) + ")")
+        .call(xAxis);
+    
+    vis.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + margin +", 0)")
+        .call(yAxis);
+
+
 });
 
 
@@ -80,14 +98,24 @@ var points = [];
 
 socket.on("loadHistory", function(data){
 
-    // TODO, make common chart part into a dynamic part
-    // D3 region. Make this dynamic
-    y = d3.scale.linear().domain([0, d3.max(data.series)]).range([0 + margin, h - margin]),
-    x = d3.scale.linear().domain([0, data.series.length]).range([0 + margin, w - margin]);
+    var endTime = Date.now();
+    var startTime = endTime - 1000*10*data.series.length;
+    var dt = 10000;
+    var n = data.series.length;
+    var ymax = d3.max(data.series);
+    y = d3.scale.linear().domain([0, ymax]).range([h - margin, 0 + margin]),
+    x = d3.time.scale()
+        .range([0 + margin, w - margin])
+        .domain([startTime, endTime]);
 
+    vis.selectAll("g.x.axis")
+        .call(d3.svg.axis().scale(x).orient("bottom"));
+
+    vis.selectAll("g.y.axis")
+        .call(d3.svg.axis().scale(y).orient("left")); 
     var line = d3.svg.line()
-        .x(function(d,i) { return x(i); })
-        .y(function(d) { return -1 * y(d); });
+        .x(function(d,i) { return x(endTime - (n-i)*dt); })
+        .y(function(d) { return -h + y(d); });
 
     points.push(data.newPt);     
 
@@ -100,56 +128,8 @@ socket.on("loadHistory", function(data){
         path.transition()
             .attr("transform","translate(" + x(-1) +")");
         points.shift();
+        axis.call(x.axis);
     }
     
-    g.append("svg:line")
-     .attr("x1", x(0))
-     .attr("y1", -1 * y(0))
-     .attr("x2", x(w))
-     .attr("y2", -1 * y(0));
- 
-    g.append("svg:line")
-     .attr("x1", x(0))
-     .attr("y1", -1 * y(0))
-     .attr("x2", x(0))
-     .attr("y2", -1 * y(d3.max(data.series)));
-
-    //TODO: move label making etc to outside handling the signal...
-    g.selectAll(".xLabel")
-        .data(x.ticks(5))
-        .enter().append("svg:text")
-        .attr("class", "xLabel")
-        .text(String)
-        .attr("x", function(d) { return x(d) })
-        .attr("y", 0)
-        .attr("text-anchor", "middle");
- 
-    g.selectAll(".yLabel")
-        .data(y.ticks(4))
-        .enter().append("svg:text")
-        .attr("class", "yLabel")
-        .text(String)
-        .attr("x", 0)
-        .attr("y", function(d) { return -1 * y(d) })
-        .attr("text-anchor", "right")
-        .attr("dy", 4);
-
-    g.selectAll(".xTicks")
-        .data(x.ticks(5))
-        .enter().append("svg:line")
-        .attr("class", "xTicks")
-        .attr("x1", function(d) { return x(d); })
-        .attr("y1", -1 * y(0))
-        .attr("x2", function(d) { return x(d); })
-        .attr("y2", -1 * y(-0.3));
- 
-    g.selectAll(".yTicks")
-        .data(y.ticks(4))
-        .enter().append("svg:line")
-        .attr("class", "yTicks")
-        .attr("y1", function(d) { return -1 * y(d); })
-        .attr("x1", x(-0.3))
-        .attr("y2", function(d) { return -1 * y(d); })
-        .attr("x2", x(0));
 
 });
