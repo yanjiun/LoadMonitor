@@ -114,12 +114,10 @@ function handleClient(socket){
     },1000); 
 
     var seriesData = [];
-    //var seriesData = Array.apply(null, 
-    //        new Array(600)).map(Number.prototype.valueOf, 0);
     setInterval(function(){ 
         console.log("seriesData is now" + seriesData); 
         var loadAvg = os.loadavg()[0];
-        if (seriesData.length >= 600){
+        if (seriesData.length >= 60){
             seriesData.pop();
         }
         seriesData.unshift(loadAvg); 

@@ -34,26 +34,23 @@ function showLoadInfo(data){
 // Functions related to socket.io 
 
 var socket = io.connect('http://localhost:3000');
-var vis, g, w, h, margin;
-socket.on("connect", function(){
-    console.log("Connected!");
 
-    w = 800,
+var w = 800,
     h = 200,
     margin = 40;
     
-    vis = d3.select("#chart")
+var vis = d3.select("#chart")
         .append("svg:svg")
         .attr("width", w)
         .attr("height", h);
  
-    g = vis.append("svg:g")
+var g = vis.append("svg:g")
         .attr("transform", "translate(0, 200)");
 
-    g.append("svg:path");
+g.append("svg:path");
 
-    var now = new Date();
-    x = d3.time.scale()
+var now = new Date();
+var x = d3.time.scale()
         .range([0 + margin, w - margin])
         .domain([now - 10*1000, now]),
     xAxis = d3.svg.axis().scale(x).orient("bottom"),
@@ -63,17 +60,34 @@ socket.on("connect", function(){
         .range([h- margin, 0+ margin]),
     yAxis = d3.svg.axis().scale(y).orient("left");
 
-    vis.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0, " + (h - margin) + ")")
-        .call(xAxis);
+vis.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0, " + (h - margin) + ")")
+    .call(xAxis);
     
-    vis.append("g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(" + margin +", 0)")
-        .call(yAxis);
+vis.append("g")
+    .attr("class", "y axis")
+    .attr("transform", "translate(" + margin +", 0)")
+    .call(yAxis);
 
+vis.append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("transform", "translate(" + w + ", " + (h-margin-6) + ")")
+        .text("Time");
 
+vis.append("text")
+        .attr("class", "y label")
+        .attr("text-anchor", "end")
+        .attr("x", -margin)
+        .attr("y", 0)
+        .attr("dy", ".75em")
+        .attr("transform", "rotate(-90)")
+        .text("Average Load");
+
+socket.on("connect", function(){
+    console.log("Connected!");
+   
 });
 
 
@@ -98,10 +112,12 @@ var points = [];
 
 socket.on("loadHistory", function(data){
 
+    points.push(data.newPt);
     var endTime = Date.now();
-    var startTime = endTime - 1000*10*data.series.length;
+    var n = points.length;
+    var startTime = endTime - 1000*10*n;
+    console.log();
     var dt = 10000;
-    var n = data.series.length;
     var ymax = d3.max(data.series);
     y = d3.scale.linear().domain([0, ymax]).range([h - margin, 0 + margin]),
     x = d3.time.scale()
@@ -117,18 +133,13 @@ socket.on("loadHistory", function(data){
         .x(function(d,i) { return x(endTime - (n-i)*dt); })
         .y(function(d) { return -h + y(d); });
 
-    points.push(data.newPt);     
-
     var path = g.selectAll("path");
      
     path.attr('d', line(points))
         .attr("transform", null)
-    if (points.length > 600)
+    if (points.length >= 60)
     {
-        path.transition()
-            .attr("transform","translate(" + x(-1) +")");
         points.shift();
-        axis.call(x.axis);
     }
     
 
