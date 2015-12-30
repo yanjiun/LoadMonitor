@@ -1,13 +1,9 @@
-###############################
-# Package Dependencies
-###############################
+##Package Dependencies
 
 Requires an installation of Node.js
 (see https://nodejs.org/en/)
 
-###############################
-# Installation
-###############################
+##Installation
 
 npm install
 (may need root priviliges)
