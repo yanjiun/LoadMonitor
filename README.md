@@ -1,22 +1,16 @@
-##Package Dependencies
+# Load Monitor
 
+## Package Dependencies
 Requires an installation of Node.js
 (see https://nodejs.org/en/)
 
-##Installation
+## Installation
+    npm install
+May need root priviliges to install
 
-npm install
-(may need root priviliges)
+## To Start Server And View Page
+    npm start
+After server is started, open your browser to "localhost:3000"
 
-################################
-# To Start Server And View Page
-################################
-
-npm start
-open your browser to "localhost:3000"
-
-################################
-# To Test
-################################
-
+## To Test
 Missing - no tests written at this point
